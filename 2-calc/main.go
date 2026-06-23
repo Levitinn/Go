@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
-
+	operation := readOperation()
+	numbers := readNumbers()
+	result := executeOperation(operation, numbers)
+	fmt.Printf("%.2f\n", result)
 }
 
 func isValidOperation(operation string) bool {
