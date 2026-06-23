@@ -70,12 +70,22 @@ func readAmount() float64 {
 	}
 }
 
+type currenciesMap map[string]map[string]float64
+
 func calcResult(amount float64, fromCurrency, toCurrency string) float64 {
-	currencies := map[string]float64{
-		"USD": USDToEUR,
-		"EUR": EURToRUB,
-		"RUB": USDToRUB,
+	currencies := currenciesMap{
+		"USD": {
+			"EUR": USDToEUR,
+			"RUB": USDToRUB,
+		},
+		"EUR": {
+			"USD": EURToUSD,
+			"RUB": EURToRUB,
+		},
+		"RUB": {
+			"USD": USDToRUB,
+			"EUR": EURToUSD,
+		},
 	}
-	rate := currencies[fromCurrency] * currencies[toCurrency]
-	return amount * rate
+	return amount * currencies[fromCurrency][toCurrency]
 }
