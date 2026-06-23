@@ -5,6 +5,7 @@ import "fmt"
 const (
 	USDToEUR = 0.85
 	USDToRUB = 75.0
+	EURToUSD = 1.17
 )
 
 const EURToRUB = USDToRUB / USDToEUR
@@ -70,29 +71,11 @@ func readAmount() float64 {
 }
 
 func calcResult(amount float64, fromCurrency, toCurrency string) float64 {
-	switch fromCurrency {
-	case "USD":
-		if toCurrency == "EUR" {
-			return amount * USDToEUR
-		}
-		if toCurrency == "RUB" {
-			return amount * USDToRUB
-		}
-	case "EUR":
-		if toCurrency == "USD" {
-			return amount / USDToEUR
-		}
-		if toCurrency == "RUB" {
-			return amount * EURToRUB
-		}
-	case "RUB":
-		if toCurrency == "USD" {
-			return amount / USDToRUB
-		}
-		if toCurrency == "EUR" {
-			return amount / EURToRUB
-		}
+	currencies := map[string]float64{
+		"USD": USDToEUR,
+		"EUR": EURToRUB,
+		"RUB": USDToRUB,
 	}
-
-	return 0
+	rate := currencies[fromCurrency] * currencies[toCurrency]
+	return amount * rate
 }
