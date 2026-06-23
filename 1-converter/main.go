@@ -6,6 +6,8 @@ const (
 	USDToEUR = 0.85
 	USDToRUB = 75.0
 	EURToUSD = 1.17
+	RUBToUSD = 0.013
+	RUBToEUR = 0.011
 )
 
 const EURToRUB = USDToRUB / USDToEUR
@@ -83,8 +85,8 @@ func calcResult(amount float64, fromCurrency, toCurrency string) float64 {
 			"RUB": EURToRUB,
 		},
 		"RUB": {
-			"USD": USDToRUB,
-			"EUR": EURToUSD,
+			"USD": RUBToUSD,
+			"EUR": RUBToEUR,
 		},
 	}
 	return amount * currencies[fromCurrency][toCurrency]
