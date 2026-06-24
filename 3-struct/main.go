@@ -1,20 +1,26 @@
 package main
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type BinList []Bin
 
 type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
+	ID        string
+	Name      string
+	CreatedAt time.Time
+	Private   bool
 }
 
-func newBin(name string, private bool) *Bin {
+func NewBin(name string, private bool) *Bin {
 	return &Bin{
-		name:    name,
-		private: private,
+		ID:        uuid.New().String(),
+		Name:      name,
+		CreatedAt: time.Now(),
+		Private:   private,
 	}
 }
 
