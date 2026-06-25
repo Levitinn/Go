@@ -7,33 +7,41 @@ import (
 	"strings"
 )
 
-func ReadFile(fileName string) ([]byte, error) {
-	data, err := os.ReadFile(fileName)
+type File interface {
+	Read() ([]byte, error)
+	Write([]byte) error
+	IsJSON() bool
+}
+type fileImpl struct {
+	path string
+}
+
+func NewFile(path string) File {
+	return &fileImpl{path: path}
+}
+func (file *fileImpl) Read() ([]byte, error) {
+	data, err := os.ReadFile(file.path)
 	if err != nil {
 		return nil, err
 	}
 	return data, nil
 }
-func IsJSON(fileName string) bool {
-	fileExt := filepath.Ext(strings.ToLower(fileName))
+func (file *fileImpl) IsJSON() bool {
+	fileExt := filepath.Ext(strings.ToLower(file.path))
 	return fileExt == ".json"
 }
 
 // Функция для записи в файл
-func WriteFile(content []byte, name string) error {
-	file, err := os.Create(name)
-
+func (f *fileImpl) Write(data []byte) error {
+	file, err := os.Create(f.path)
 	if err != nil {
-		fmt.Println("Error creating file:", err)
 		return err
 	}
 	defer file.Close()
-	_, err = file.Write(content)
+	_, err = file.Write(data)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		return err
-	} else {
-		fmt.Println("File written successfully")
 	}
 	return nil
 }
