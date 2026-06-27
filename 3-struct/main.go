@@ -15,7 +15,8 @@ func main() {
 		fmt.Println("Error loading config:", err)
 		return
 	}
-	_ = api.NewClient(cfg)
+	client := api.NewClient(cfg)
+	fmt.Printf("API client ready, key loaded (%d chars)\n", len(client.APIKey()))
 
 	newFile := file.NewFile("storage.json")
 	newStorage := storage.NewStorage(newFile)
