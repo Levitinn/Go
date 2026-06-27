@@ -1,19 +1,28 @@
 package main
 
 import (
+	"3-struct/api"
 	"3-struct/bins"
+	"3-struct/config"
 	"3-struct/file"
 	"3-struct/storage"
 	"fmt"
 )
 
 func main() {
+	cfg, err := config.NewConfig()
+	if err != nil {
+		fmt.Println("Error loading config:", err)
+		return
+	}
+	_ = api.NewClient(cfg)
+
 	newFile := file.NewFile("storage.json")
 	newStorage := storage.NewStorage(newFile)
 	binsList := bins.NewBins()
 	bin := binsList.NewBin("test", false)
 
-	err := newStorage.Save(bin)
+	err = newStorage.Save(bin)
 	if err != nil {
 		fmt.Println("Error saving bin:", err)
 		return
