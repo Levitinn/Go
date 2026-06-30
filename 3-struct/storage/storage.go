@@ -11,8 +11,9 @@ import (
 const FileName = "storage.json"
 
 type Storage interface {
-	Save(bin *bins.Bin) error
+	Save(bins.Bin) error
 	Load() (bins.BinList, error)
+	Delete(id string) error
 }
 
 type jsonStorage struct {
@@ -23,7 +24,7 @@ func NewStorage(file file.File) Storage {
 	return &jsonStorage{file: file}
 }
 
-func (storage *jsonStorage) Save(bin *bins.Bin) error {
+func (storage *jsonStorage) Save(bin bins.Bin) error {
 	list := bins.BinList{}
 	if !storage.file.IsJSON() {
 		return fmt.Errorf("file %s is not a JSON", FileName)
@@ -39,8 +40,29 @@ func (storage *jsonStorage) Save(bin *bins.Bin) error {
 			return err
 		}
 	}
-	list = append(list, *bin)
+	list = append(list, bin)
 	bytes, err := json.Marshal(list)
+	if err != nil {
+		return err
+	}
+	err = storage.file.Write(bytes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (storage *jsonStorage) Delete(id string) error {
+	list, err := storage.Load()
+	if err != nil {
+		return err
+	}
+	filtered := bins.BinList{}
+	for _, bin := range list {
+		if bin.ID != id {
+			filtered = append(filtered, bin)
+		}
+	}
+	bytes, err := json.Marshal(filtered)
 	if err != nil {
 		return err
 	}
