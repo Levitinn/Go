@@ -10,17 +10,30 @@ import (
 
 const FileName = "storage.json"
 
-func SaveToStorage(bin *bins.Bin) error {
+type Storage interface {
+	Save(bin *bins.Bin) error
+	Load() (bins.BinList, error)
+}
+
+type jsonStorage struct {
+	file file.File
+}
+
+func NewStorage(file file.File) Storage {
+	return &jsonStorage{file: file}
+}
+
+func (storage *jsonStorage) Save(bin *bins.Bin) error {
 	list := bins.BinList{}
-	if !file.IsJSON(FileName) {
+	if !storage.file.IsJSON() {
 		return fmt.Errorf("file %s is not a JSON", FileName)
 	}
-	data, err := file.ReadFile(FileName)
+	data, err := storage.file.Read()
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return err
 		}
-	} else {
+	} else if len(data) > 0 {
 		err = json.Unmarshal(data, &list)
 		if err != nil {
 			return err
@@ -31,19 +44,19 @@ func SaveToStorage(bin *bins.Bin) error {
 	if err != nil {
 		return err
 	}
-	err = file.WriteFile(bytes, FileName)
+	err = storage.file.Write(bytes)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func LoadBins() (bins.BinList, error) {
+func (storage *jsonStorage) Load() (bins.BinList, error) {
 	binList := bins.BinList{}
-	if !file.IsJSON(FileName) {
-		return binList, fmt.Errorf("file %s is not a JSON", FileName)
+	if !storage.file.IsJSON() {
+		return binList, fmt.Errorf("file %s is not a JSON")
 	}
-	content, err := file.ReadFile(FileName)
+	content, err := storage.file.Read()
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return binList, err
