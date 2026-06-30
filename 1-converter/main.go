@@ -5,13 +5,21 @@ import "fmt"
 const (
 	USDToEUR = 0.85
 	USDToRUB = 75.0
+	EURToUSD = 1.17
+	RUBToUSD = 0.013
+	RUBToEUR = 0.011
 )
 
 const EURToRUB = USDToRUB / USDToEUR
 
 func main() {
+	currencies := currenciesMap{
+		"USD": {"EUR": USDToEUR, "RUB": USDToRUB},
+		"EUR": {"USD": EURToUSD, "RUB": EURToRUB},
+		"RUB": {"USD": RUBToUSD, "EUR": RUBToEUR},
+	}
 	amount, fromCurrency, toCurrency := readInput()
-	result := calcResult(amount, fromCurrency, toCurrency)
+	result := calcResult(amount, fromCurrency, toCurrency, &currencies)
 	fmt.Printf("%.2f\n", result)
 }
 
@@ -69,30 +77,8 @@ func readAmount() float64 {
 	}
 }
 
-func calcResult(amount float64, fromCurrency, toCurrency string) float64 {
-	switch fromCurrency {
-	case "USD":
-		if toCurrency == "EUR" {
-			return amount * USDToEUR
-		}
-		if toCurrency == "RUB" {
-			return amount * USDToRUB
-		}
-	case "EUR":
-		if toCurrency == "USD" {
-			return amount / USDToEUR
-		}
-		if toCurrency == "RUB" {
-			return amount * EURToRUB
-		}
-	case "RUB":
-		if toCurrency == "USD" {
-			return amount / USDToRUB
-		}
-		if toCurrency == "EUR" {
-			return amount / EURToRUB
-		}
-	}
+type currenciesMap map[string]map[string]float64
 
-	return 0
+func calcResult(amount float64, fromCurrency, toCurrency string, currencies *currenciesMap) float64 {
+	return amount * (*currencies)[fromCurrency][toCurrency]
 }
