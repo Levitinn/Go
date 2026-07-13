@@ -7,7 +7,7 @@ import (
 )
 
 func writeRandomNumber(w http.ResponseWriter, r *http.Request) {
-	randomNumber := rand.Intn(6)
+	randomNumber := rand.Intn(7)
 	w.Write([]byte(fmt.Sprintf("%d", randomNumber)))
 	return
 }
