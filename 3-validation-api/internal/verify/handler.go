@@ -4,6 +4,7 @@ import (
 	"3-validation-api/config"
 	"3-validation-api/internal"
 	responses "3-validation-api/packages"
+	"3-validation-api/storage"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -14,16 +15,17 @@ import (
 )
 
 type HandlerDeps struct {
-	Config *config.Config
+	Config  *config.Config
+	Storage *storage.Storage
 }
 
 type Handler struct {
-	config *config.Config
-	tokens map[string]string
+	config  *config.Config
+	storage *storage.Storage
 }
 
 func NewHandler(deps HandlerDeps) *Handler {
-	return &Handler{config: deps.Config, tokens: make(map[string]string)}
+	return &Handler{config: deps.Config, storage: deps.Storage}
 }
 
 func (handler *Handler) Send(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +47,12 @@ func (handler *Handler) Send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	secret := uuid.New().String()
-	handler.tokens[secret] = req.Email
+	err = handler.storage.Save(secret, req.Email)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	e := email.NewEmail()
 	e.From = handler.config.Email
 	e.To = []string{req.Email}
@@ -66,11 +73,12 @@ func (handler *Handler) Send(w http.ResponseWriter, r *http.Request) {
 
 func (handler *Handler) Verify(w http.ResponseWriter, r *http.Request) {
 	hash := r.PathValue("hash")
-	email, ok := handler.tokens[hash]
+	_, ok := handler.storage.Find(hash)
 	if !ok {
 		responses.JsonResponse(w, http.StatusBadRequest, responses.SendResponse{Message: "invalid hash"})
 		return
 	}
 
-	responses.JsonResponse(w, http.StatusOK, responses.SendResponse{Message: email})
+	responses.JsonResponse(w, http.StatusOK, true)
+	handler.storage.Delete(hash)
 }

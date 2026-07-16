@@ -3,6 +3,7 @@ package main
 import (
 	"3-validation-api/config"
 	"3-validation-api/internal/verify"
+	"3-validation-api/storage"
 	"fmt"
 	"net/http"
 )
@@ -13,7 +14,8 @@ func main() {
 		fmt.Printf("failed to create config: %v", err)
 		return
 	}
-	handler := verify.NewHandler(verify.HandlerDeps{Config: config})
+	store := storage.NewStorage("./storage/tokens.json")
+	handler := verify.NewHandler(verify.HandlerDeps{Config: config, Storage: store})
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /send", handler.Send)
