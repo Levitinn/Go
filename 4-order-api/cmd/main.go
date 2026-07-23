@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -22,9 +21,14 @@ func main() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 	log.Println("DB connected and migrated successfully")
-	handler := product.NewHandler(product.HandlerDeps{DB: db.DB})
+	repo := product.NewRepository(db.DB)
+	handler := product.NewHandler(product.HandlerDeps{Repository: repo})
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /products", handler.CreateProduct)
+	mux.HandleFunc("PUT /products/{id}", handler.UpdateProduct)
+	mux.HandleFunc("GET /products", handler.GetAllProducts)
+	mux.HandleFunc("GET /products/{id}", handler.GetProductByID)
+	mux.HandleFunc("DELETE /products/{id}", handler.DeleteProduct)
 	log.Println("Server is running on port 8081")
 	http.ListenAndServe(":8081", mux)
 }

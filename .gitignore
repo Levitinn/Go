@@ -4,4 +4,4 @@ myGo
 *.exe
 *.env
 __debug_bin*
-postgres-data
+postgres-data/
