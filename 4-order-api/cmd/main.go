@@ -4,6 +4,7 @@ import (
 	"4-order-api/config"
 	"4-order-api/internal/product"
 	"4-order-api/pkg/db"
+	"4-order-api/pkg/middleware"
 	"log"
 	"net/http"
 )
@@ -30,5 +31,5 @@ func main() {
 	mux.HandleFunc("GET /products/{id}", handler.GetProductByID)
 	mux.HandleFunc("DELETE /products/{id}", handler.DeleteProduct)
 	log.Println("Server is running on port 8081")
-	http.ListenAndServe(":8081", mux)
+	http.ListenAndServe(":8081", middleware.Logging(mux))
 }
