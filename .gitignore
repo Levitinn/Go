@@ -3,3 +3,5 @@ myGo
 3-struct/3-struct
 *.exe
 *.env
+__debug_bin*
+postgres-data/
